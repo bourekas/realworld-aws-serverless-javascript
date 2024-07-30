@@ -2,11 +2,142 @@
 
 exports[`does not alter the infrastructure 1`] = `
 {
+  "Outputs": {
+    "conduitapprestapiEndpoint7FF64387": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "conduitapprestapi272CB4F8",
+            },
+            ".execute-api.",
+            {
+              "Ref": "AWS::Region",
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            {
+              "Ref": "conduitapprestapiDeploymentStageprodCDA258D9",
+            },
+            "/",
+          ],
+        ],
+      },
+    },
+  },
   "Parameters": {
     "BootstrapVersion": {
       "Default": "/cdk-bootstrap/hnb659fds/version",
       "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
       "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "conduitapprestapi272CB4F8": {
+      "Properties": {
+        "Name": "rest-api",
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "conduitapprestapiANY1851DA47": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "ANY",
+        "Integration": {
+          "Type": "MOCK",
+        },
+        "ResourceId": {
+          "Fn::GetAtt": [
+            "conduitapprestapi272CB4F8",
+            "RootResourceId",
+          ],
+        },
+        "RestApiId": {
+          "Ref": "conduitapprestapi272CB4F8",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "conduitapprestapiAccount52B5AE10": {
+      "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "conduitapprestapi272CB4F8",
+      ],
+      "Properties": {
+        "CloudWatchRoleArn": {
+          "Fn::GetAtt": [
+            "conduitapprestapiCloudWatchRole08BF49F2",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "conduitapprestapiCloudWatchRole08BF49F2": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "conduitapprestapiDeployment1D4BDA332c6fc89dcea4b058ff9b4282d47876fe": {
+      "DependsOn": [
+        "conduitapprestapiANY1851DA47",
+      ],
+      "Properties": {
+        "Description": "Automatically created by the RestApi construct",
+        "RestApiId": {
+          "Ref": "conduitapprestapi272CB4F8",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "conduitapprestapiDeploymentStageprodCDA258D9": {
+      "DependsOn": [
+        "conduitapprestapiAccount52B5AE10",
+      ],
+      "Properties": {
+        "DeploymentId": {
+          "Ref": "conduitapprestapiDeployment1D4BDA332c6fc89dcea4b058ff9b4282d47876fe",
+        },
+        "RestApiId": {
+          "Ref": "conduitapprestapi272CB4F8",
+        },
+        "StageName": "prod",
+      },
+      "Type": "AWS::ApiGateway::Stage",
     },
   },
   "Rules": {
